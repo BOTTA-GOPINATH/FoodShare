@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoodShare - Connect Restaurants with People in Need</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="page-wrapper">
+        <!-- Navigation -->
+        <nav class="navbar">
+            <div class="container navbar-content">
+                <a href="index.html" class="logo">Food<span>Share</span></a>
+                <div id="menu-toggle" class="menu-toggle">
+                    <i>≡</i>
+                </div>
+                <ul class="nav-links" id="nav-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="login.html">Available Food</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                    <li><a href="login.html">Login</a></li>
+                    <li><a href="register.html" class="btn">Register</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="container hero-content">
+                <h1>Reduce Food Waste, Feed Those in Need</h1>
+                <p>Connecting restaurants with excess food to people who need it most</p>
+                <a href="register.html" class="cta-button">Get Started</a>
+            </div>
+        </section>
+
+        <!-- How It Works Section -->
+        <section class="section section-bg-image">
+            <div class="container section-with-bg">
+                <div class="section-heading">
+                    <h2>How It Works</h2>
+                    <p>Our platform makes it easy to donate and receive surplus food</p>
+                </div>
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-icon">1</div>
+                        <h3>Register</h3>
+                        <p>Sign up as a restaurant or a recipient organization</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-icon">2</div>
+                        <h3>List Food</h3>
+                        <p>Restaurants can easily post available food donations</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-icon">3</div>
+                        <h3>Connect</h3>
+                        <p>Recipients can browse and reserve available food</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-icon">4</div>
+                        <h3>Pickup</h3>
+                        <p>Coordinate pickup times and complete the donation</p>
+                    </div>
+                </div>
+
+                <div class="user-types">
+                    <div class="user-type donor">
+                        <h3>For Restaurants</h3>
+                        <p>Reduce waste, gain tax benefits, and make a positive impact in your community.</p>
+                        <a href="register.html?role=donor" class="cta-button">Register as Donor</a>
+                    </div>
+                    <div class="user-type recipient">
+                        <h3>For Food Banks & Shelters</h3>
+                        <p>Access quality surplus food to serve more people in your community.</p>
+                        <a href="register.html?role=recipient" class="cta-button">Register as Recipient</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Available Food Section -->
+        <section class="section food-section">
+            <div class="container">
+                <div class="section-heading">
+                    <h2>Available Food Donations</h2>
+                    <p>Browse recent food donations in your area</p>
+                </div>
+                <div class="listings" id="food-listings">
+                    <!-- Food listings will be populated dynamically -->
+                </div>
+                <div style="text-align: center; margin-top: 30px;">
+                    <a href="login.html" class="cta-button">View All Listings</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-col">
+                        <h3>FoodShare</h3>
+                        <p>Reducing food waste and fighting hunger in communities nationwide.</p>
+                    </div>
+                    <div class="footer-col">
+                        <h3>Quick Links</h3>
+                        <ul>
+                            <li><a href="index.html">Home</a></li>
+                            <li><a href="login.html">Available Food</a></li>
+                            <li><a href="about.html">About Us</a></li>
+                            <li><a href="#">Contact</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-col">
+                        <h3>For Restaurants</h3>
+                        <ul>
+                            <li><a href="register.html?role=donor">Register</a></li>
+                            <li><a href="#">FAQs</a></li>
+                            <li><a href="#">Donation Guidelines</a></li>
+                            <li><a href="#">Tax Benefits</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-col">
+                        <h3>For Recipients</h3>
+                        <ul>
+                            <li><a href="register.html?role=recipient">Register</a></li>
+                            <li><a href="#">FAQs</a></li>
+                            <li><a href="#">Food Safety</a></li>
+                            <li><a href="#">Resources</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-bottom: 20px; position: relative;">
+                    <input
+                        type="text"
+                        id="search-input"
+                        placeholder="Search by city (e.g., Vijayawada, Visakhapatnam)"
+                        class="form-control"
+                        style="max-width: 300px; display: inline-block;"
+                    />
+                    <button id="search-btn" class="cta-button">Search</button>
+                </div>
+
+                <div id="food-listings"></div>
+            </div>
+        </footer>
+    </div>
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+      
+        // Your web app's Firebase configuration
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+          apiKey: "AIzaSyAKOC81Pv1PV2GSRPugWZyJz6G00DMSXe8",
+          authDomain: "foodshare-b089c.firebaseapp.com",
+          databaseURL: "https://foodshare-b089c-default-rtdb.firebaseio.com",
+          projectId: "foodshare-b089c",
+          storageBucket: "foodshare-b089c.firebasestorage.app",
+          messagingSenderId: "84688096303",
+          appId: "1:84688096303:web:9fd19c675352b1e9ee8ada",
+          measurementId: "G-LJ4JRV2LM4"
+        };
+      
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+      </script>
+    <!-- Firebase App (Core) -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<!-- Firebase Auth -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<!-- Firebase Realtime Database -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+    <script>
+        const restaurantData = [
+            { name: "Coastal Bites", location: "Visakhapatnam", cuisine: "Seafood" },
+            { name: "Spice Hub", location: "Vijayawada", cuisine: "Indian" },
+            { name: "Andhra Tadka", location: "Guntur", cuisine: "Spicy Andhra" },
+            { name: "Tirupati Treats", location: "Tirupati", cuisine: "South Indian" }
+        ];
+
+        function displayRestaurants(filter = "") {
+            const listings = document.getElementById("food-listings");
+            listings.innerHTML = "";
+
+            const filteredData = restaurantData.filter(restaurant =>
+                restaurant.location.toLowerCase().includes(filter.toLowerCase())
+            );
+
+            filteredData.forEach(restaurant => {
+                const card = document.createElement("div");
+                card.className = "listing-card";
+                card.innerHTML = `
+                    <div class="listing-content">
+                        <h3 class="listing-title">${restaurant.name}</h3>
+                        <p class="listing-restaurant">Location: ${restaurant.location}</p>
+                        <p class="food-type">${restaurant.cuisine}</p>
+                    </div>
+                `;
+                listings.appendChild(card);
+            });
+        }
+
+        // Display all Andhra Pradesh restaurants by default
+        window.onload = () => displayRestaurants();
+
+        // Search Function
+        document.getElementById("search-btn").addEventListener("click", () => {
+            const searchInput = document.getElementById("search-input").value.trim();
+            displayRestaurants(searchInput);
+        });
+        
+        // Menu toggle functionality
+        document.getElementById("menu-toggle").addEventListener("click", () => {
+            document.getElementById("nav-links").classList.toggle("active");
+        });
+    </script>
+
+
+  
+</body>
+</html>

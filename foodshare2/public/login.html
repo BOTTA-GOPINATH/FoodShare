@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login | Food Share</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="login-container">
+    <h2>Login</h2>
+    <form id="loginForm">
+      <input type="email" id="email" placeholder="Email" required />
+      <input type="password" id="password" placeholder="Password" required />
+      <button type="submit">Login</button>
+    </form>
+    <p>Don't have an account? <a href="register.html" id="signupBtn">Sign Up</a></p>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAKOC81Pv1PV2GSRPugWZyJz6G00DMSXe8",
+      authDomain: "foodshare-b089c.firebaseapp.com",
+      databaseURL: "https://foodshare-b089c-default-rtdb.firebaseio.com",
+      projectId: "foodshare-b089c",
+      storageBucket: "foodshare-b089c.appspot.com",
+      messagingSenderId: "84688096303",
+      appId: "1:84688096303:web:9fd19c675352b1e9ee8ada"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const database = getDatabase(app);
+
+    document.getElementById("loginForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          const user = userCredential.user;
+
+          return get(ref(database, 'users/' + user.uid));
+        })
+        .then((snapshot) => {
+          if (snapshot.exists()) {
+            const userData = snapshot.val();
+            alert(`Welcome, ${userData.name}!`);
+
+            // ✅ Save role info
+            localStorage.setItem("loggedInUser", JSON.stringify({
+              name: userData.name,
+              email: userData.email,
+              userType: userData.role // "donor" or "recipient"
+            }));
+
+            // ✅ Redirect
+            if (userData.role === "donor") {
+              window.location.href = "donor-home.html";
+            } else if (userData.role === "recipient") {
+              window.location.href = "recipient-home.html";
+            } else {
+              alert("Unknown role. Contact admin.");
+            }
+          } else {
+            alert("User data not found!");
+          }
+        })
+        .catch((error) => {
+          alert("Login failed: " + error.message);
+        });
+    });
+  </script>
+</body>
+</html>

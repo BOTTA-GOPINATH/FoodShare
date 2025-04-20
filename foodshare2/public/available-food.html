@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Available Food - FoodShare</title>
+  <link rel="stylesheet" href="list-styles.css"/>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="container navbar-content">
+      <a href="index.html" class="logo">Food<span>Share</span></a>
+      <ul class="nav-links">
+        <li><a href="recipient-home.html">Dashboard</a></li>
+        <li><a href="available-food.html">Available Food</a></li>
+        <li><a href="index.html" id="logout-btn">Logout</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <section class="available-food">
+    <label for="locationFilter"><strong>Filter by City:</strong></label>
+    <select id="locationFilter">
+      <option value="all">All</option>
+      <option value="Bhimavaram">Bhimavaram</option>
+      <option value="Tadepalligudem">Tadepalligudem</option>
+      <option value="Rajahmundry">Rajahmundry</option>
+    </select>
+
+    <div class="container">
+      <h2>Available Food Donations</h2>
+      <p>Browse food donations and request items for your organization.</p>
+      <div class="listings" id="food-listings"></div>
+    </div>
+  </section>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import { getDatabase, ref, onValue, get, child } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAKOC81Pv1PV2GSRPugWZyJz6G00DMSXe8",
+      authDomain: "foodshare-b089c.firebaseapp.com",
+      databaseURL: "https://foodshare-b089c-default-rtdb.firebaseio.com",
+      projectId: "foodshare-b089c",
+      storageBucket: "foodshare-b089c.appspot.com",
+      messagingSenderId: "84688096303",
+      appId: "1:84688096303:web:9fd19c675352b1e9ee8ada"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const foodRef = ref(db, "foodList");
+    const userRef = ref(db, "users");
+
+    const listingsDiv = document.getElementById("food-listings");
+    const locationFilter = document.getElementById("locationFilter");
+
+    const render = (items, selectedLocation) => {
+      listingsDiv.innerHTML = "";
+
+      let filtered = items;
+      if (selectedLocation !== "all") {
+        filtered = items.filter((i) => i.donor?.location === selectedLocation);
+      }
+
+      if (filtered.length === 0) {
+        listingsDiv.innerHTML = "<p>No food items match your filter.</p>";
+        return;
+      }
+
+      filtered.forEach(({ food, quantity, expiryDate, donor }) => {
+        const card = document.createElement("div");
+        card.className = "food-card";
+
+        card.innerHTML = `
+          <h3>${food}</h3>
+          <p><strong>Quantity:</strong> ${quantity}</p>
+          <p><strong>Expiry:</strong> ${expiryDate || "Not provided"}</p>
+          <p><strong>Donor:</strong> ${donor?.name || "Unknown"}</p>
+          <p><strong>Location:</strong> ${donor?.location || "Unknown"}</p>
+          <p><strong>Contact:</strong> ${donor?.contact || "Not provided"}</p>
+        `;
+
+        listingsDiv.appendChild(card);
+      });
+    };
+
+    onValue(foodRef, async (snapshot) => {
+      const now = Date.now();
+      const cutoff = now - 24 * 60 * 60 * 1000;
+      const results = [];
+      const locationSet = new Set();
+
+      const promises = [];
+
+      snapshot.forEach((childSnap) => {
+        const item = childSnap.val();
+
+        if (item.timestamp && item.timestamp >= cutoff) {
+          const p = get(child(userRef, item.donorId)).then((userSnap) => {
+          const donorInfo = userSnap.exists() ? userSnap.val() : { name: "Unknown", location: "Unknown" };
+          const donor = {
+          name: donorInfo.name || "Unknown",
+          location: item.location || donorInfo.location || "Unknown",
+          contact: item.contact || donorInfo.contact || "Not provided"
+};
+            item.food = item.food || "Unknown";
+            item.quantity = item.quantity || "Unknown";
+            locationSet.add(donor.location);
+            results.push({ ...item, donor });
+          });
+
+          promises.push(p);
+        }
+      });
+
+      await Promise.all(promises);
+
+      locationFilter.innerHTML = `<option value="all">All</option>`;
+      [...locationSet].sort().forEach((loc) => {
+        const option = document.createElement("option");
+        option.value = loc;
+        option.textContent = loc;
+        locationFilter.appendChild(option);
+      });
+
+      render(results, locationFilter.value);
+      locationFilter.addEventListener("change", () => {
+        render(results, locationFilter.value);
+      });
+    });
+  </script>
+
+  <script>
+    document.getElementById("logout-btn").addEventListener("click", function () {
+      localStorage.removeItem("loggedInUser");
+      window.location.href = "index.html";
+    });
+  </script>
+</body>
+</html>

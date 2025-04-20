@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - FoodShare</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="form-container">
+        <h2>Register for FoodShare</h2>
+        <form id="registerForm">
+            <input type="text" id="name" placeholder="Name" required />
+            <input type="email" id="email" placeholder="Email" required />
+            <input type="password" id="password" placeholder="Password" required />
+            
+            <select id="role" required>
+              <option value="">Select Role</option>
+              <option value="donor">Donor</option>
+              <option value="recipient">Recipient</option>
+            </select>
+          
+            <button type="submit">Register</button>
+          </form>
+        <p>Already have an account? <a href="login.html">Login</a></p>
+        <div id="register-error" class="error-message"></div>
+    </div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
+      
+        const firebaseConfig = {
+          apiKey: "AIzaSyAKOC81Pv1PV2GSRPugWZyJz6G00DMSXe8",
+          authDomain: "foodshare-b089c.firebaseapp.com",
+          databaseURL: "https://foodshare-b089c-default-rtdb.firebaseio.com",
+          projectId: "foodshare-b089c",
+          storageBucket: "foodshare-b089c.firebasestorage.app",
+          messagingSenderId: "84688096303",
+          appId: "1:84688096303:web:9fd19c675352b1e9ee8ada"
+        };
+      
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+      
+        document.getElementById("registerForm").addEventListener("submit", function (e) {
+          e.preventDefault();
+      
+          const name = document.getElementById("name").value;
+          const email = document.getElementById("email").value;
+          const password = document.getElementById("password").value;
+          const role = document.getElementById("role").value;
+      
+          if (!role) {
+            alert("Please select a role.");
+            return;
+          }
+      
+          createUserWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+              const user = userCredential.user;
+      
+              // Save user data with role
+              return set(ref(database, 'users/' + user.uid), {
+                name: name,
+                email: email,
+                role: role
+              });
+            })
+            .then(() => {
+              alert("Registration successful!");
+              window.location.href = "login.html";
+            })
+            .catch((error) => {
+              alert("Error: " + error.message);
+            });
+        });
+      </script>
+      
+</body>
+</html>

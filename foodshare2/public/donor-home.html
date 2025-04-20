@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FoodShare - Donor Home</title>
+  <link rel="stylesheet" href="home.css"/>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="container">
+      <a href="#" class="logo">Food<span>Share</span></a>
+      <div class="nav-menu">
+        <ul class="nav-links">
+          <li><a href="#">Home</a></li>
+          <li><a href="#mydonation">My Donations</a></li>
+          <li><a href="about.html">About Us</a></li>
+        </ul>
+        <button id="logout-btn" class="logout-button">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="container hero-content">
+      <h1>Welcome, Donor!</h1>
+      <p>Thank you for helping those in need. Start listing your food donations now.</p>
+      <a href="list-donations.html" class="cta-button">List a Donation</a>
+    </div>
+  </section>
+
+  <div id="mydonation">
+    <section class="section available-food">
+      <div class="container">
+        <div class="section-heading">
+          <h2>My Food Donations</h2>
+          <p>Manage and track your donated food items.</p>
+        </div>
+        <div class="listings" id="donor-food-listings">
+          <!-- Food donations will be populated dynamically -->
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <section class="section section-bg-image">
+    <div class="container section-with-bg">
+      <div class="section-heading">
+        <h2>How It Works</h2>
+        <p>Our platform makes it easy to donate and receive surplus food</p>
+      </div>
+      <div class="steps">
+        <div class="step"><div class="step-icon">1</div><h3>Register</h3><p>Sign up as a restaurant or a recipient organization</p></div>
+        <div class="step"><div class="step-icon">2</div><h3>List Food</h3><p>Restaurants can easily post available food donations</p></div>
+        <div class="step"><div class="step-icon">3</div><h3>Connect</h3><p>Recipients can browse and reserve available food</p></div>
+        <div class="step"><div class="step-icon">4</div><h3>Pickup</h3><p>Coordinate pickup times and complete the donation</p></div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-col">
+          <h3>FoodShare</h3>
+          <p>Reducing food waste and fighting hunger in communities nationwide.</p>
+        </div>
+        <div class="footer-col">
+          <h3>Quick Links</h3>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="login.html">Available Food</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="#">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h3>For Restaurants</h3>
+          <ul>
+            <li><a href="register.html?role=donor">Register</a></li>
+            <li><a href="#">FAQs</a></li>
+            <li><a href="#">Donation Guidelines</a></li>
+            <li><a href="#">Tax Benefits</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h3>For Recipients</h3>
+          <ul>
+            <li><a href="register.html?role=recipient">Register</a></li>
+            <li><a href="#">FAQs</a></li>
+            <li><a href="#">Food Safety</a></li>
+            <li><a href="#">Resources</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Firebase App + Auth + Database -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAKOC81Pv1PV2GSRPugWZyJz6G00DMSXe8",
+      authDomain: "foodshare-b089c.firebaseapp.com",
+      databaseURL: "https://foodshare-b089c-default-rtdb.firebaseio.com",
+      projectId: "foodshare-b089c",
+      storageBucket: "foodshare-b089c.appspot.com",
+      messagingSenderId: "84688096303",
+      appId: "1:84688096303:web:9fd19c675352b1e9ee8ada",
+      measurementId: "G-LJ4JRV2LM4"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    document.getElementById("logout-btn").addEventListener("click", () => {
+      signOut(auth).then(() => {
+        localStorage.removeItem("loggedInUser");
+        window.location.href = "index.html";
+      });
+    });
+
+    const listingsDiv = document.getElementById("donor-food-listings");
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const donorId = user.uid;
+        const donationsRef = ref(db, "donations");
+
+        onValue(donationsRef, (snapshot) => {
+          listingsDiv.innerHTML = ""; // Clear previous listings
+          snapshot.forEach((child) => {
+            const donation = child.val();
+            if (donation.donorId === donorId) {
+              const card = document.createElement("div");
+              card.className = "listing-card";
+              card.innerHTML = `
+                <div class="listing-img" style="background-image: url('${donation.imageURL || 'default.jpg'}');"></div>
+                <h3 class="listing-title">${donation.name}</h3>
+                <p class="listing-meta">Quantity: ${donation.quantity}</p>
+                <p class="listing-meta">Expires in: ${donation.expiry}</p>
+              `;
+              listingsDiv.appendChild(card);
+            }
+          });
+        });
+      } else {
+        alert("You must be logged in to view this page.");
+        window.location.href = "login.html";
+      }
+    });
+  </script>
+</body>
+</html>

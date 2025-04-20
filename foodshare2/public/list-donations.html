@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>List Donation - FoodShare</title>
+  <link rel="stylesheet" href="list-styles.css"/>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="container navbar-content">
+      <a href="index.html" class="logo">Food<span>Share</span></a>
+      <ul class="nav-links">
+        <li><a href="donor-home.html">Dashboard</a></li>
+        <li><a href="list-donations.html">List Donation</a></li>
+        <li><a href="index.html" id="logout-btn">Logout</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <section class="donation-form">
+    <div class="container">
+      <h2>List a Food Donation</h2>
+      <form id="donationForm">
+        <input type="text" id="food" placeholder="Food Item" required />
+        <input type="text" id="quantity" placeholder="Quantity" required />
+        <input type="text" id="location" placeholder="Location" />
+        <input type="tel" id="contact" placeholder="Contact Number" />
+        <button type="submit">Submit Donation</button>
+      </form>
+    </div>
+  </section>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAKOC81Pv1PV2GSRPugWZyJz6G00DMSXe8",
+      authDomain: "foodshare-b089c.firebaseapp.com",
+      databaseURL: "https://foodshare-b089c-default-rtdb.firebaseio.com",
+      projectId: "foodshare-b089c",
+      storageBucket: "foodshare-b089c.appspot.com",
+      messagingSenderId: "84688096303",
+      appId: "1:84688096303:web:9fd19c675352b1e9ee8ada"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const auth = getAuth(app);
+
+    const form = document.getElementById("donationForm");
+
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        alert("Not logged in. Redirecting to login...");
+        window.location.href = "login.html";
+        return;
+      }
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        const food = document.getElementById("food").value.trim();
+        const quantity = document.getElementById("quantity").value.trim();
+        const location = document.getElementById("location").value.trim();
+        const contact = document.getElementById("contact").value.trim();
+
+
+        if (!food || !quantity) {
+          alert("Please fill in all required fields.");
+          return;
+        }
+
+        const donationData = {
+          donorId: user.uid,
+          food,
+          quantity,
+          location: location || "Not specified",
+          contact: contact || "Not specified",
+          timestamp: Date.now()
+        };
+
+        push(ref(db, "foodList"), donationData)
+          .then(() => {
+            alert("Donation listed successfully!");
+            window.location.href = "donor-home.html";
+          })
+          .catch((error) => {
+            alert("Error saving donation: " + error.message);
+          });
+      });
+    });
+  </script>
+
+  <script>
+    document.getElementById("logout-btn").addEventListener("click", function () {
+      localStorage.removeItem("loggedInUser");
+      window.location.href = "index.html";
+    });
+  </script>
+</body>
+</html>

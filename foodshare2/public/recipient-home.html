@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Recipient Home | Food Share</title>
+  <link rel="stylesheet" href="home.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <div class="container navbar-content">
+      <a href="index.html" class="logo">Food<span>Share</span></a>
+      <ul class="nav-links">
+        <li><a href="recipient-home.html">Dashboard</a></li>
+        <li><a href="available-food.html">Available Food</a></li>
+        <li><a href="#" id="logoutBtn">Logout</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="container hero-content">
+      <h1>Welcome Recipient!</h1>
+      <p>Check the latest food donations available in your area.</p>
+      <button id="browseFoodBtn" class="cta-button">Browse Food</button>
+    </div>
+  </section>
+  <section class="section section-bg-image">
+    <div class="container section-with-bg">
+        <div class="section-heading">
+            <h2>How It Works</h2>
+            <p>Our platform makes it easy to donate and receive surplus food</p>
+        </div>
+        <div class="steps">
+            <div class="step">
+                <div class="step-icon">1</div>
+                <h3>Register</h3>
+                <p>Sign up as a restaurant or a recipient organization</p>
+            </div>
+            <div class="step">
+                <div class="step-icon">2</div>
+                <h3>List Food</h3>
+                <p>Restaurants can easily post available food donations</p>
+            </div>
+            <div class="step">
+                <div class="step-icon">3</div>
+                <h3>Connect</h3>
+                <p>Recipients can browse and reserve available food</p>
+            </div>
+            <div class="step">
+                <div class="step-icon">4</div>
+                <h3>Pickup</h3>
+                <p>Coordinate pickup times and complete the donation</p>
+            </div>
+        </div>
+    </div>
+</section>
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-col">
+                <h3>FoodShare</h3>
+                <p>Reducing food waste and fighting hunger in communities nationwide.</p>
+            </div>
+            <div class="footer-col">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="login.html">Available Food</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>For Restaurants</h3>
+                <ul>
+                    <li><a href="register.html?role=donor">Register</a></li>
+                    <li><a href="#">FAQs</a></li>
+                    <li><a href="#">Donation Guidelines</a></li>
+                    <li><a href="#">Tax Benefits</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>For Recipients</h3>
+                <ul>
+                    <li><a href="register.html?role=recipient">Register</a></li>
+                    <li><a href="#">FAQs</a></li>
+                    <li><a href="#">Food Safety</a></li>
+                    <li><a href="#">Resources</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</footer>
+  <script>
+    const userData = JSON.parse(localStorage.getItem("loggedInUser"));
+
+    // ✅ Check if recipient
+    if (!userData || userData.userType !== "recipient") {
+      window.location.href = "login.html";
+    }
+
+    // Logout
+    document.getElementById("logoutBtn").addEventListener("click", function () {
+      localStorage.removeItem("loggedInUser");
+      window.location.href = "index.html";
+    });
+    document.getElementById("browseFoodBtn").addEventListener("click", function () {
+      window.location.href = "available-food.html";
+    });
+  </script>
+</body>
+</html>
